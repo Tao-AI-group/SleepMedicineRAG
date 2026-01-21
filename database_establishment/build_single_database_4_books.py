@@ -32,7 +32,7 @@ import tiktoken
 
 
 # -------------------- CONFIG --------------------
-BOOK_DIR = Path("/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105")
+BOOK_DIR = Path("PATH_TO/RAG_PAPER/all_textbooks_1105")
 
 PURE_TITLE_BOOK = "1-ICSD-3-TR"
 NUMBERED_TITLE_BOOKS = [

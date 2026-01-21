@@ -33,7 +33,7 @@ import tiktoken
 
 
 # -------------------- CONFIG --------------------
-BOOK_DIR = Path("/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105")
+BOOK_DIR = Path("PATH_TO/RAG_PAPER/all_textbooks_1105")
 
 PURE_TITLE_BOOK = "1-ICSD-3-TR"
 NUMBERED_TITLE_BOOKS = [
@@ -245,7 +245,7 @@ def sentence_aware_chunk(text: str, title: str, target=TARGET_TOKENS, max_tokens
     n = len(sents)
     i = 0
     while i < n:
-        # 单句超长：直接按 token 切
+        
         if tok_lens[i] > max_tokens:
             toks = _enc.encode(sents[i])
             pos = 0
@@ -256,7 +256,7 @@ def sentence_aware_chunk(text: str, title: str, target=TARGET_TOKENS, max_tokens
             i += 1
             continue
 
-        # 否则贪心扩展到 target，最多不超过 max_tokens
+        
         lo, hi = i, i
         while hi < n and window_tokens(i, hi+1) <= max_tokens:
             hi += 1
@@ -269,7 +269,6 @@ def sentence_aware_chunk(text: str, title: str, target=TARGET_TOKENS, max_tokens
         chunks.append(ch_txt)
 
         if overlap > 0:
-            # 使下一窗口与当前尾部保持 ~overlap tokens
             k = hi
             while k > i and window_tokens(k, hi) < overlap:
                 k -= 1
@@ -277,7 +276,7 @@ def sentence_aware_chunk(text: str, title: str, target=TARGET_TOKENS, max_tokens
         else:
             i = hi
 
-    # 合并尾端过短块
+    
     merged = []
     buf = None
     for ch in chunks:
@@ -310,10 +309,10 @@ def build_minimal_sections(book_name: str) -> List[Dict]:
     assert md_path.exists() and json_path.exists(), f"Missing files for {book_name}"
 
     md_text = load_md(md_path)
-    # 仍然用你原来的 get_md_heading_positions（单 #）
+   
     all_md_heads, total_len = get_md_heading_positions(md_text)
 
-    # 预构 norm -> [positions...]，加速查找
+    
     from collections import defaultdict
     norm2pos = defaultdict(list)
     for h in sorted(all_md_heads, key=lambda x: x["start_char"]):
@@ -324,7 +323,7 @@ def build_minimal_sections(book_name: str) -> List[Dict]:
     sections = []
 
     if book_name in NUMBERED_TITLE_BOOKS:
-        # L1：仅用 '# Chapter N' 起始匹配
+        
         md_chapters, _ = extract_md_chapter_l1_positions(md_text)
         num2md = {c["num"]: c for c in md_chapters}
         l1_chaps = parse_toc_l1_chapter_numbers(json_path)
@@ -337,13 +336,13 @@ def build_minimal_sections(book_name: str) -> List[Dict]:
                 log(f"[WARN] L1 '{raw1}' (num={num}) not found in MD by '# Chapter {num}'")
         l1_occ.sort(key=lambda x: x[2])
 
-        # 生成 L1 区间
+        
         l1_spans = []
         for i, (raw1, md_raw1, s, norm1) in enumerate(l1_occ):
             e = l1_occ[i+1][2] if i+1 < len(l1_occ) else total_len
             l1_spans.append((raw1, md_raw1, norm1, s, e))
 
-        # 在每个 L1 区间内，仅从 cand_norms 的 positions 里挑落在 (s,e) 的点，避免全量扫描
+        
         for raw1, md_raw1, n1, s, e in l1_spans:
             cand_norms = set(l1_to_l2.get(n1, []) + l1_to_l3.get(n1, []))
 
@@ -386,7 +385,7 @@ def build_minimal_sections(book_name: str) -> List[Dict]:
 
     log(f"[ICSD] Assigned (MD∩TOC): {len(assigned)}")
     if not assigned:
-        # 回退：用所有 MD 标题作为边界，避免生成单个超大区段
+        
         log("[ICSD][FALLBACK] No TOC-matched headings; using all MD headings as boundaries.")
         assigned = [{"raw": h["raw"], "breadcrumb": [h["raw"]], "start_char": h["start_char"]}
                     for h in all_md_heads]
@@ -433,16 +432,16 @@ def token_window_chunk(text: str, max_tokens=MAX_TOKENS, overlap=OVERLAP_TOKENS)
 
 
 def robust_chunk_section(body: str, heading: str):
-    # 简单“标点密度”和“长度”检测
+   
     punct = len(re.findall(r"[。！？!?\.]", body))
     density = punct / max(1, len(body))
     BIG_CHARS = 12000  # > 12k 字符走快速通道；你可按机器情况调
 
     if len(body) > BIG_CHARS or density < 0.0015:
-        # 无/少标点、大表格/代码、或纯目录：走快速通道
+        
         return token_window_chunk(body, max_tokens=MAX_TOKENS, overlap=OVERLAP_TOKENS)
     else:
-        # 正常通道：你已经替换成了线性前缀和版本的 sentence_aware_chunk
+        
         return sentence_aware_chunk(
             body, heading,
             target=TARGET_TOKENS, max_tokens=MAX_TOKENS,
@@ -451,9 +450,9 @@ def robust_chunk_section(body: str, heading: str):
 
 def char_based_chunk(
     text: str,
-    target_chars: int = 2000,   # 约等于 500 tokens
-    max_chars: int = 3000,      # 约等于 750 tokens
-    overlap_chars: int = 400    # 相当于 80 tokens 左右
+    target_chars: int = 2000,   
+    max_chars: int = 3000,      
+    overlap_chars: int = 400   
 ) -> List[Tuple[str, int, int, int]]:
     """
     完全基于字符的快速切分。
@@ -471,7 +470,7 @@ def char_based_chunk(
     pseudo_pos = 0
     while pos < n:
         sub = text[pos:pos + max_chars]
-        tlen = len(sub) // 4  # 近似 token 数（不重要，只是留给日志）
+        tlen = len(sub) // 4  
         chunks.append((sub, pseudo_pos, pseudo_pos + tlen, tlen))
         pseudo_pos += tlen
         pos += step
@@ -520,7 +519,7 @@ def process_book(book_name: str) -> pd.DataFrame:
                 parent_section_id=parent_id,
                 chunk_index_in_section=ci,
                 content=ch_text,
-                chunk_token_len=int(tlen),   # 字符/4 的近似；OK
+                chunk_token_len=int(tlen), 
                 start_char=s, end_char=e,
                 keywords=simple_keywords(heading, ch_text),
                 source_path=str(md_path),
@@ -678,6 +677,4 @@ def search_hybrid(query: str, topn: int = 12):
 
 
 if __name__ == "__main__":
-    # main()
-    # 示例检索：
     print(search_hybrid("diagnostic criteria for insomnia disorder"))

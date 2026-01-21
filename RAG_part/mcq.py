@@ -31,41 +31,41 @@ from sentence_transformers import SentenceTransformer
 from rank_bm25 import BM25Okapi
 
 
-AASM_MCQ = "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/dataset/AASM_MCQ.jsonl"
-BOARD_VITALS_MCQ = "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/dataset/BOARD_VITALS.jsonl"
-CASE_DATA = "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/dataset/vignette_cases_structured.json"
+AASM_MCQ = "PATH_TO/RAG_PAPER/dataset/AASM_MCQ.jsonl"
+BOARD_VITALS_MCQ = "PATH_TO/RAG_PAPER/dataset/BOARD_VITALS.jsonl"
+CASE_DATA = "PATH_TO/RAG_PAPER/dataset/vignette_cases_structured.json"
 
 
 KB_CONFIG: Dict[str, Dict[str, Any]] = {
     "TOC_hybrid": {
-        "rag_dir": "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105/rag_index_1105",
+        "rag_dir": "PATH_TO/RAG_PAPER/all_textbooks_1105/rag_index_1105",
         "retriever": "hybrid",  # BM25 + FAISS
     },
     "TOC_single": {
-        "rag_dir": "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105/rag_index_1105_dense_only",
+        "rag_dir": "PATH_TO/RAG_PAPER/all_textbooks_1105/rag_index_1105_dense_only",
         "retriever": "dense",  # FAISS only
     },
     "cleaned_hybrid": {
-        "rag_dir": "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105/rag_index_1113_textbooks_simple",
+        "rag_dir": "PATH_TO/RAG_PAPER/all_textbooks_1105/rag_index_1113_textbooks_simple",
         "retriever": "hybrid",
     },
     "cleaned_single": {
-        "rag_dir": "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105/rag_index_1113_textbooks_dense_only_simple",
+        "rag_dir": "PATH_TO/RAG_PAPER/all_textbooks_1105/rag_index_1113_textbooks_dense_only_simple",
         "retriever": "dense",
     },
     "uncleaned_hybrid": {
-        "rag_dir": "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105/rag_index_1105_unleaned_textbooks",
+        "rag_dir": "PATH_TO/RAG_PAPER/all_textbooks_1105/rag_index_1105_unleaned_textbooks",
         "retriever": "hybrid",
     },
     "uncleaned_single": {
-        "rag_dir": "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105/rag_index_1105_unleaned_textbooks_dense_only",
+        "rag_dir": "PATH_TO/RAG_PAPER/all_textbooks_1105/rag_index_1105_unleaned_textbooks_dense_only",
         "retriever": "dense",
     },
 }
 
 TOP_K = 16
 
-OUT_ROOT = "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/exp_code_Nov/mcq/comprehensive_code/k16"
+OUT_ROOT = "PATH_TO/RAG_PAPER/exp_code_Nov/mcq/comprehensive_code/k16"
 
 
 user_prompt_template_with_rag = """You are given the following information:

@@ -4,7 +4,7 @@ Build dense-only RAG index for sleep textbooks (VLM markdowns)
 with fixed-window splitting, NO BM25.
 
 Data layout:
-- ROOT_DIR = /dgx1data/aii/tao/m327768/workdir/projects/sleep/RAG/text_books/extracted_content
+- ROOT_DIR = PATH_TO/sleep/RAG/text_books/extracted_content
   - <book_dir_1>/
       vlm/
         *.md   <-- use these markdown files
@@ -15,7 +15,7 @@ Data layout:
 
 Special rules:
 1) Ignore this folder completely:
-   /dgx1data/aii/tao/m327768/workdir/projects/sleep/RAG/text_books/extracted_content/
+   PATH_TO/sleep/RAG/text_books/extracted_content/
        3-Competencies in Sleep Medicine An Assessment Guide
 
 2) Do NOT use TOC. Treat each markdown as a whole document and split it
@@ -50,10 +50,10 @@ import tiktoken
 
 # -------------------- CONFIG --------------------
 ROOT_DIR = Path(
-    "/dgx1data/aii/tao/m327768/workdir/projects/sleep/RAG/text_books/extracted_content"
+    "PATH_TO/sleep/RAG/text_books/extracted_content"
 )
 
-OUT_DIR = Path("/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/all_textbooks_1105/rag_index_1105_unleaned_textbooks_dense_only")
+OUT_DIR = Path("PATH_TO/RAG_PAPER/all_textbooks_1105/rag_index_1105_unleaned_textbooks_dense_only")
 OUT_DIR.mkdir(exist_ok=True, parents=True)
 
 

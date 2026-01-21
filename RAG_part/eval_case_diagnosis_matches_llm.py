@@ -10,15 +10,15 @@ import pandas as pd
 
 
 PAPERS_ROOT_DIR = Path(
-    "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/exp_code_Nov/case/results_temp"
+    "PATH_TO/RAG_PAPER/exp_code_Nov/case/results_temp"
 )
 
 OUTPUT_ROOT = Path(
-    "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/exp_code_Nov/case/diag_match_llm"
+    "PATH_TO/RAG_PAPER/exp_code_Nov/case/diag_match_llm"
 )
 
 CASES_JSON_PATH = Path(
-    "/dgx1data/aii/tao/m327768/workdir/projects/RAG_PAPER/dataset/vignette_cases_structured_pipe.json"
+    "PATH_TO/RAG_PAPER/dataset/vignette_cases_structured_pipe.json"
 )
 
 
