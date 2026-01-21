@@ -1,0 +1,135 @@
+========================================
+Corpus Preprocessing Pipeline
+Description and Usage Instructions
+Overview
+
+This script implements a two-pass, large-language-model–assisted preprocessing pipeline for textbook-derived Markdown corpora. The goal is to reduce non-clinical noise while preserving narrative continuity and clinical content fidelity for downstream retrieval and indexing tasks.
+
+The pipeline is designed for situations where source PDFs have already been converted to Markdown with page boundaries preserved.
+
+The preprocessing consists of:
+
+Boundary repair using a sliding three-page window
+
+Deletion-only cleaning of non-clinical artifacts
+
+No paraphrasing, summarization, or content generation is performed at any stage.
+
+Pass 1: Boundary Repair (Page-Level)
+
+Input Markdown is segmented into pages using explicit page markers. Pages are processed using an overlapping three-page sliding window (pages i, i+1, i+2).
+
+Within each window, a language model is used only to:
+
+Repair paragraph fragmentation introduced by page breaks
+
+Remove duplicate text caused by overlapping windows
+
+A strict continuity constraint is enforced:
+If a paragraph begins on page i+1 and continues into page i+2, the entire paragraph is consolidated into the finalized output for page i and removed from the leading portion of the next window. This ensures that every paragraph appears exactly once in the final corpus.
+
+The output of this pass is a repaired Markdown file with corrected boundaries and no duplicated content.
+
+Pass 2: Deletion-Only Cleaning
+
+The repaired Markdown is then processed using a deletion-only protocol to remove residual non-clinical artifacts, including:
+
+Reference sections and reading lists
+
+Inline citation markers (numeric, author-year, superscripts)
+
+Assessment questions, quizzes, and answer keys
+
+Keywords metadata lines
+
+Running headers, footers, and table-of-contents residue
+
+Isolated page numbers and reference-only URLs or DOIs
+
+All deletions are performed conservatively. No text is rewritten or reordered. Markdown structure is preserved, and content inside code blocks or math fences is not modified.
+
+Inputs
+
+A single Markdown (.md) file
+
+The file must contain explicit page markers (e.g., “Page 12”, HTML page comments, or similar)
+
+Outputs
+
+For an input file named:
+
+book.md
+
+the script produces:
+
+book.repaired.md
+Markdown after boundary repair and deduplication
+
+book.cleaned.md
+Final cleaned Markdown corpus suitable for retrieval indexing
+
+book.audit.jsonl
+Line-by-line audit log containing:
+
+Page window index
+
+Continuity anchors
+
+Model outputs for boundary repair
+This file supports transparency and manual spot-checking.
+
+Requirements
+
+Python 3.9 or later
+
+An OpenAI API key with access to the specified model
+
+Required Python package:
+pip install openai
+
+Environment Setup
+
+Before running the script, set your API key as an environment variable.
+
+Linux / macOS:
+export OPENAI_API_KEY="your_api_key_here"
+
+Windows (PowerShell):
+$env:OPENAI_API_KEY="your_api_key_here"
+
+
+Basic Usage
+
+Run the script from the command line:
+
+python corpus_preprocess_markdown.py --input-md book.md --out-dir out --require-pages
+
+This command:
+
+Reads book.md
+
+Enforces page-based processing
+
+Writes outputs to the directory named “out”
+
+Common Options
+
+--input-md
+Path to the input Markdown file.
+
+--out-dir
+Directory where output files will be written.
+
+--model
+Language model used for boundary repair (default: gpt-4o).
+
+--require-pages
+Forces the script to fail if page markers are not detected.
+This option should be used when page markers are known to exist and page-level guarantees are required for reproducibility.
+
+--page-mark-re
+Custom regular expression for matching page marker lines.
+Use this if your Markdown uses a non-standard page marker format.
+
+--keep-front-matter
+Prevents removal of front-matter sections such as forewords or prefaces during cleaning.
